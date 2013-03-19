@@ -1,4 +1,11 @@
 This project is used for my homework in Applied Math in Computer Science.
-You can copy or change it in whatever way you want
+Currently,It contains the following contexts:
+==============================================================================
+1. The one dimension regression: use the polynomial function fitting the sin function
+
+2. The PCA algorithm: reduce high-dimension to low-dimension using the 389 handwriting three digital picture as smaple
+===============================================================================
+If you have any questions, please contact with me.
+
 Email: silfer.lee@gmail.com
 Date : 2013/03/19

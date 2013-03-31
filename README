@@ -4,7 +4,12 @@ Currently,It contains the following contexts:
 1. The one dimension regression: use the polynomial function fitting the sin function
 
 2. The PCA algorithm: reduce high-dimension to low-dimension using the 389 handwriting three digital picture as smaple
+
+3. The EM algorithm: The Expectation-Maximization (EM) algorithm is an iterative
+method to find the maximum likelihood. In this case, it used to classfy the
+d-deimension points into different groups.
 ===============================================================================
+
 If you have any questions, please contact with me.
 
 Email: silfer.lee@gmail.com

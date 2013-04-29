@@ -19,7 +19,10 @@ def fun(a,b,x):
 
     @return   the function value
     """
-    return a*np.exp(-b*x)
+    y = np.zeros(len(x))
+    for i in range(len(x)):
+        y[i] = a * np.exp(-b * x[i])
+    return y
 
 def jac_f(a,b,x):
     n = len(x)
@@ -27,18 +30,28 @@ def jac_f(a,b,x):
 
     for i in range(n):
         result[i][0] = np.exp(-b * x[i])
-        result[i][1] = -a * x * np.exp(-b * x[i])
+        result[i][1] = -a * x[i] * np.exp(-b * x[i])
 
     return result
 
 def hess_f(a,b,x):
     n = len(x)
-    j = jac(a,b,x)
+    j = jac_f(a,b,x)
     result = np.zeros((2,2))
     result[0][0] = np.dot(j[:,0],j[:,0])
     result[1][1] = np.dot(j[:,1],j[:,1])
     result[0][1] = result[1][0] = np.dot(j[:,0],j[:,1])
     return result
+def is_positive(hess):
+    """
+    Judge whether the input hess matrix is positive definition
+    """
+    w,v = linalg.eigh(hess) 
+    for value in w:
+        if value <= 0:
+            return False
+    return True
+
 
 def LM(fun,init_param, args,jac,hess):
     """
@@ -48,11 +61,11 @@ def LM(fun,init_param, args,jac,hess):
     @param  jac         the jacobian of objective function fun
     @param  hess        the hessian of objective function fun
     """
-    max_iter_num = 50
+    max_iter_num = 200
     lamb = 0.01
 
     data_num = args.shape[0]
-    param_num = init_param.shape[0]
+    param_num = len(init_param)
     
     x = args[:,0]
     y = args[:,1]
@@ -63,26 +76,65 @@ def LM(fun,init_param, args,jac,hess):
     residual = y - est_y
     residual_sum_square = np.dot(residual,residual)
 
-    J = jac_f(a,b,x)
-    H = hess_f(a,b,x)
-
     iter_num = 0 
+    
     while (iter_num < max_iter_num):
-        H = H + lamb * np.eye(param_num,param_num)
+        J = jac_f(a,b,x)
+        H = hess_f(a,b,x)
         
+        #compute the step length
+        H_lm = H + lamb * np.eye(param_num,param_num)
+        while (not is_positive(H_lm)):
+            lamb = 4 * lamb
+            H_lm = H + lamb * np.eye(param_num, param_num)
         g = np.zeros((2,1))
-        g[0][0] = np.outer(J[:,0],residual)
-        g[1][0] = np.outer(J[:,1],residual)
+        g[0][0] = np.dot(J[:,0],residual)
+        g[1][0] = np.dot(J[:,1],residual)
         step = np.dot(linalg.inv(H_lm),g)
         
-        # something must be wrong below this line
-        a += step[0][0]
-        b += step[1][0]
+        a_lm = a + step[0][0]
+        b_lm = b + step[1][0]
 
-        est_y = fun(a,b,x)
-        residual = y - est_y
-        residual_sum_square = np.dot(residual,residual)
+        est_y_lm = fun(a_lm,b_lm,x)
+        residual_lm = y - est_y_lm
+        residual_sum_square_lm = np.dot(residual_lm,residual_lm)
 
-        if residual_sum_square < epsion:
-            lamb /= 10
-
+        #if error is smaller,accept.otherwise,reject and adjust step
+        if residual_sum_square_lm < residual_sum_square:
+            lamb = lamb / 10
+            a = a_lm
+            b = b_lm
+            residual = residual_lm
+            residual_sum_square = residual_sum_square_lm
+        else:
+            lamb = lamb * 10
+            
+        iter_num += 1
+    return [a,b]
+    
+#    while (iter_num < max_iter_num):
+#        J = Jac_f(a,b,x)
+#        H = hess_f(a,b,x)
+#        if (np.dot(J,J) < epsilon):
+#            return [a,b];
+#        while(!is_positive(H+lamb*np.eye(2,2))):
+#            lamb = 4 * lamb
+#        
+#        s = np.zeros((2,1))
+if __name__ == "__main__":
+    """
+    main program
+    """
+    ab_init = [2,2]
+    data = [0.25,0.5,1,1.5,2,3,4,6,8]
+    obs = [19.21,18.15,15.36,14.10,12.89,9.32,7.45,5.24,3.01]
+    args_init = np.zeros((9,2))
+    args_init[:,0] = data
+    args_init[:,1] = obs
+    [aa,bb] = LM(fun,ab_init,args_init,jac_f,hess_f)
+    print aa,bb
+    y = fun(aa,bb,data)
+    print y
+    plt.plot(data,obs,'ro',label="original data")
+    plt.plot(data,y,label="fitting curve")
+    plt.show()

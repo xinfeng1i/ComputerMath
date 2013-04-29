@@ -17,7 +17,7 @@ def fun(a,b,x):
     @param b  the parameter to be estimate
     @param x  the original data
 
-    @return   the function value
+    @return   the function value 1*n array
     """
     y = np.zeros(len(x))
     for i in range(len(x)):
@@ -25,6 +25,15 @@ def fun(a,b,x):
     return y
 
 def jac_f(a,b,x):
+    """
+    Compute the Jacobian matrix respect to 'a' and 'b'
+
+    @param  a    the parameter to be estimate
+    @param  b    the parameter to be estimate
+    @param  x    the original data
+
+    @return      the Jacobian n * 2 matrix
+    """
     n = len(x)
     result = np.zeros((n,2))
 
@@ -35,6 +44,14 @@ def jac_f(a,b,x):
     return result
 
 def hess_f(a,b,x):
+    """
+    Compute the Hessian Matrix respect to 'a' & 'b'
+
+    @param  a   the parameter to be estimate
+    @param  b   the parameter to be estimate
+    @param  x   the original data
+    @return     the Hessina Matrix which is 2*2
+    """
     n = len(x)
     j = jac_f(a,b,x)
     result = np.zeros((2,2))
@@ -45,6 +62,9 @@ def hess_f(a,b,x):
 def is_positive(hess):
     """
     Judge whether the input hess matrix is positive definition
+
+    @param  hess    Hessian Matrix
+    @return     bool,whether is a Hessian Matrix
     """
     w,v = linalg.eigh(hess) 
     for value in w:
@@ -55,11 +75,15 @@ def is_positive(hess):
 
 def LM(fun,init_param, args,jac,hess):
     """
+    Use LMA algorithm to estimate parameter
+
     @param  fun         the objective function to be optimize
     @param  init_parm   the initial guess param
     @param  args        the original data
     @param  jac         the jacobian of objective function fun
     @param  hess        the hessian of objective function fun
+    
+    @return     the estimated parameter 'a' & 'b'
     """
     max_iter_num = 200
     lamb = 0.01
@@ -84,7 +108,7 @@ def LM(fun,init_param, args,jac,hess):
         
         #compute the step length
         H_lm = H + lamb * np.eye(param_num,param_num)
-        while (not is_positive(H_lm)):
+        while (not is_positive(H_lm)):  # make sure H_lm is positive
             lamb = 4 * lamb
             H_lm = H + lamb * np.eye(param_num, param_num)
         g = np.zeros((2,1))
@@ -112,15 +136,8 @@ def LM(fun,init_param, args,jac,hess):
         iter_num += 1
     return [a,b]
     
-#    while (iter_num < max_iter_num):
-#        J = Jac_f(a,b,x)
-#        H = hess_f(a,b,x)
-#        if (np.dot(J,J) < epsilon):
-#            return [a,b];
-#        while(!is_positive(H+lamb*np.eye(2,2))):
-#            lamb = 4 * lamb
-#        
-#        s = np.zeros((2,1))
+
+
 if __name__ == "__main__":
     """
     main program

@@ -25,14 +25,14 @@ class SVM(object):
     def fit(self,data,label):
         n_samples, n_features = data.shape
 
-        K = zeros((n_samples, n_samples))
+        K = np.zeros((n_samples, n_samples))
         for i in range(n_samples):
             for j in range(n_samples):
                 K[i,j] = self.kernel(data[i],data[j])
 
         P = cvxopt.matrix(np.outer(label,label) * K)
         q = cvxopt.matrix(np.ones(n_samples) * -1)
-        A = cvxopt.matrix(y,(1,n_samples))
+        A = cvxopt.matrix(label,(1,n_samples))
         b = cvxopt.matrix(0.0)
 
         if self.C is None:
@@ -61,7 +61,7 @@ class SVM(object):
         self.b = 0
         for i in range(len(self.a)):
             self.b += self.sv_label[i]
-            self.b -= np.sum(self,a * self.sv_label * K[index[i], sv])
+            self.b -= np.sum(self.a * self.sv_label * K[index[i], sv])
         self.b /= len(self.a)
 
         if self.kernel == linear_kernel:
@@ -95,4 +95,62 @@ if __name__ == "__main__":
         y1 = np.ones(len(X1))
         y2 = np.ones(len(X2)) * -1
         return X1,y1,X2,y2
+    def split_train(X1,y1,X2,y2):
+        X1_train = X1[:90]
+        y1_train = y1[:90]
+        X2_train = X2[:90]
+        y2_train = y2[:90]
+        X_train = np.vstack((X1_train,X2_train))
+        y_train = np.hstack((y1_train,y2_train))
+        return X_train,y_train
+    def split_test(X1,y1,X2,y2):
+        X1_test = X1[90:]
+        y1_test = y1[90:]
+        X2_test = X2[90:]
+        y2_test = y2[90:]
+        X_test = np.vstack((X1_test,X2_test))
+        y_test = np.hstack((y1_test,y2_test))
+        return X_test, y_test
+    def plot_margin(X1_train, X2_train,clf):
+        def f(x,w,b,c=0):
+            return (-w[0] * x - b + c) / w[1]
+        plt.plot(X1_train[:,0], X1_train[:,1],"ro")
+        plt.plot(X2_train[:,0], X2_train[:,1],"bo")
+        plt.scatter(clf.sv[:,0],clf.sv[:,1],s=100,c="g")
 
+        a0 = -4
+        a1 = f(a0,clf.w,clf.b)
+        b0 = 4
+        b1 = f(b0,clf.w,clf.b)
+        plt.plot([a0,b0],[a1,b1],"k")
+
+        a0 = -4
+        a1 = f(a0,clf.w,clf.b,1)
+        b0 = 4
+        b1 = f(b0,clf.w,clf.b,1)
+        plt.plot([a0,b0],[a1,b1],"k--")
+
+        a0 = -4
+        a1 = f(a0,clf.w,clf.b,-1)
+        b0 = 4
+        b1 = f(b0, clf.w, clf.b, -1)
+        plt.plot([a0,b0],[a1,b1],"k--")
+
+        plt.title("Linear Separable Test")
+        plt.xlabel("X")
+        plt.ylabel("Y")
+        plt.axis("tight")
+        plt.show()
+    def test_linear():
+        X1,y1,X2,y2 = gen_lin_separable_data()
+        X_train,y_train = split_train(X1,y1,X2,y2)
+        X_test,y_test = split_test(X1,y1,X2,y2)
+
+        clf = SVM()
+        clf.fit(X_train,y_train)
+
+        y_predict = clf.predict(X_test)
+        corrent = np.sum(y_predict == y_test)
+        print "%d out of %d predictions corrent" %(corrent,len(y_predict))
+        plot_margin(X_train[y_train==1], X_train[y_train==-1],clf)
+    test_linear()

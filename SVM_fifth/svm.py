@@ -1,3 +1,9 @@
+#!/usr/bin/python
+#Filename:SVM.py
+#Author: XinFeng Li
+#Email: silferlee@zju.edu.cn
+#Data: 2013/05/10
+
 import numpy as np
 from numpy import linalg
 import cvxopt

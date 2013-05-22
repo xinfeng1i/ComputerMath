@@ -4,8 +4,26 @@ Currently,It contains the following contexts:
 1. The one dimension regression: use the polynomial function fitting the sin function
 
 2. The PCA algorithm: reduce high-dimension to low-dimension using the 389 handwriting three digital picture as smaple
-===============================================================================
-If you have any questions, please contact with me.
 
+3. The EM algorithm: The Expectation-Maximization (EM) algorithm is an iterative method to find the maximum likelihood. 
+   In this case, it used to classfy the d-deimension points into different groups.
+	
+	PCA_algo.py -- use the traditional PCA algo, calculate the eigenvector of scatter matrix
+	PCA_algo.png -- the result of PCA_algo.py
+	PCA_SVD_algo.py -- use the SVD to calculate the eigenvector
+	PCA_SVD_algo.png -- the result of PCA_SVD_algo.py
+
+4. The LM algorithm: An non-linear optimization algothrim between Newton's Method and Gradient Descent Method.
+
+   LM_algo.py -- LM optimization algorithm used in curve regression
+   LM_fitting.png -- Result
+
+5. SVM: Support Vector Machine
+    svm.py -- the SVM algotithm
+    linear_separable.png -- used SVM to classify the linear separable data
+    linear_overlap_separable.png -- used SVM to classify the linear separable data with overlap data
+    non_linear_separable.png -- used SVM to classify the non linear separable data
+
+==============================================================================
 Email: silfer.lee@gmail.com
 Date : 2013/03/19

@@ -1,0 +1,145 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage{times}                       % 使用 Times New Roman 字体
+\usepackage{CJK,CJKnumb,CJKulem}         % 中文支持宏包
+\usepackage{color}                       % 支持彩色
+
+\usepackage{comment}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amscd}
+\usepackage{graphicx}
+\usepackage{indentfirst}
+\usepackage{titlesec}
+\usepackage[top=25.4mm, bottom=25.4mm, left=31.7mm, right=32.2mm]{geometry}
+
+%页面设置
+\begin{CJK*}{GBK}{hei}
+%\theoremstyle{definition}
+%\newtheoremstyle{mythm}{1.5ex plus 1ex minus .2ex}{1.5ex plus 1ex minus .2ex}
+%   {\kai}{\parindent}{\song\bfseries}{}{1em}{}
+\newtheoremstyle{mythm}{1ex}{1ex}% 定理环境的上下间距.
+{\CJKfamily{song}}{\parindent}{\CJKfamily{hei} \bf}{}{1em}{}%定理内容为宋体, 缩进, 定理名称为黑粗体
+\theoremstyle{mythm}%设置定理环境
+\newtheorem{thm}{定理~}[section]
+\newtheorem{lem}[thm]{引理~}
+\newtheorem{pro}[thm]{性质~}
+\newtheorem{fact}[thm]{Fact}
+\newtheorem{prop}[thm]{命题~}
+\newtheorem{ques}[thm]{问题~}
+\newtheorem{cor}[thm]{推论~}
+\newtheorem{de}[thm]{定义~}
+\newtheorem{rem}[thm]{注记~}
+\numberwithin{equation}{section}
+\end{CJK*}
+\renewcommand\refname{\CJKfamily{hei} 参考文献}
+%\renewcommand{\abstractname}{摘要}
+%%%%%%%%%%%%%%%%下面几行用于改变证明环境的定义
+\makeatletter
+\renewenvironment{proof}[1][\proofname]{\par
+\pushQED{\qed}%
+\normalfont \topsep6\p@\@plus6\p@ \labelsep1em\relax
+\trivlist
+\item[\hskip\labelsep\indent
+\bfseries #1]\ignorespaces
+}{%
+\popQED\endtrivlist\@endpefalse
+}
+\makeatother
+%%%%%%%%%%%%%%(http://latex.yo2.cn)
+\renewcommand{\proofname}{\CJKfamily{hei} 证明}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+%\titleformat{\section}{\CJKfamily{hei} }{\arabic{section}{1em}{}
+\titleformat{\section}{\large \bf \CJKfamily{hei} }{{\bf \thesection\space}}{0pt}{}
+
+\begin{document}
+%\setlength{\baselineskip}{1ex}% 设置行距
+\setlength{\abovedisplayskip}{1ex} % 设置公式上边间距
+\setlength{\belowdisplayskip}{1ex} % 设置公式下边间距
+\begin{CJK*}{GBK}{song}
+
+\author{李新锋 (11224014)}                                 % 作者
+\title{计算机应用数学课程论文}              % 题目
+\maketitle                                           % 生成标题
+
+
+
+\section{引言}
+Hessian LLE [1] 描述了一种将高维欧式空间流形$M$上的离散数据点，降到低维空间的方法。该方法从一个局部等距的概念框架中导出。在局部等距中流形$M$ 被看做是欧式空间的一个黎曼子流形，对低维欧式空间连通子集也是局部等距的。由于该方法并不要求连通子集是凸集，因而该框架能够处理的情况比ISOMAP 方法更广泛。理论框架主要是求解方程
+$
+  \mathcal{H}(f) = \int_M ||H_f(m)||^2_F
+$
+其中定义\emph{f}:$M \rightarrow \mathcal{R}$, $H_f$表示$f$的Hessian矩阵, $\mathcal{H}{f}$对流形$M$上的Hessian矩阵的Frobenius范数求均值。为了定义Hessian，我们使用在流形$M$切平面上的正交坐标系。观察到，如果流形$M$确实是局部等距于低维欧式空间的一个连通子集，那么$\mathcal{H}{f}$有一个$(d+1)$维零空间，该零空间由一个常量函数和一个由原始等距坐标张成的$d$ 维函数空间。因此等距坐标可以被恢复到线性等距。该方法可以看做是是LLE方法的修正，其理论框架可以看做是Laplacian eigenmaps框架的修正， 其中将原来的Laplacian替换为基于Hessian的二次形式。
+
+%\clearpage % 换页，\newpage也可以，推荐\clearpage
+\section{方法概述}
+LLE方法假设数据在流形$M$上，并且流形$M$被看做是周围欧式空间的黎曼子流形，与低维欧式空间的一个凸子集是全局等距的。然而存在不是全局等距的情况，部分等距，因而凸子集的限制是不负责任的。HLLE主要解决部分等距的，非凸集的情况。
+\subsection{数学描述}
+假设有一个低维参数空间$\Theta \subset \mathcal{R}^d$ 和一个平滑映射$\psi:\Theta \rightarrow \mathcal{R}^n$,其中$d<n$. 那么称$M=\psi(\Theta)$为流形。向量$\theta$ 可以看做是一些控制参数，流形看做当参数改变时所有可能的测度信息$m=\psi(\theta)$. 关键工作是要从观测数据点$m_i$中恢复出潜在参数${\theta}_i$
+
+给定流形上的数据点$m_i$ 的集合，恢复出唯一的映射函数$\psi$和参数点$\theta_i$，是不可能的。因为如果找到一个$\psi$是问题的解，那么总是可以找到另一个映射$\phi: \mathcal{R}^d \rightarrow \mathcal{R}^d$，那么将两个映射进行组合$\psi \circ \phi$就可以得到另外一个解。出于这种考虑我们需要做一些额外的假设从而使得取得的解唯一。
+
+ISOMAP给出的两个假设是：
+\begin{quotation}
+(ISO1)等距假设：映射函数$\psi$保留映射前后的两点之间的测地距不变，即
+\[
+  G(m,m')=|\theta - \theta'|, \forall m \leftrightarrow \theta, m' \leftrightarrow \theta'
+\]
+
+(ISO2)凸集假设：参数空间$\Theta$是$\mathcal{R}^d$空间的凸子集，即如果$\theta$, $\theta'$ 是$\Theta$空间的两个点，那么位于两点之间的线段{$(1-t)\theta+t\theta':t \in (0,1)$} 也位于$\Theta$ 内。
+\end{quotation}
+\subsection{算法实现}
+
+\emph{HLLE algorithm}:
+\begin{quotation}
+Input: ($m_i$:$i=1,...N$) a collection of $N$ points in $\mathcal{R}_n$.
+
+Parameters: $d$, the dimension of the parameter space;
+$k$, the size of the neighborhoods for fitting.
+
+Constraints: $min(k,n)>d$.
+
+Output: $(w_i: i=1,2,...,N)$ a collection of $N$ points in $\mathcal{R}^d$, the recovered parametrization.
+\end{quotation}
+
+\emph{Procedure}:
+\begin{itemize}
+  \item 确定邻居：对于每一个数据点 $m_i$, $i=1,...,n$,确定其最近$k$ 近邻的索引。记 $\mathcal{N}_i$ 表示邻居节点的集合。对于每一个 $\mathcal{N}_i,i=1,...,N$,组成一个$k*N$的矩阵$M^i$,每一行表示一个去中心化的邻居节点集合$m_j-\overline{m}_i$, $j\in \mathcal{N}_i$,其中$\overline{m}_i=Ave\{m_j:j \in \mathcal{N}_i\}$
+  \item 获得切面坐标：对$M_i$做SVD分解，生成矩阵$U$,$D$,$V$; $U$是
+  $k*min(k,n)$. $U$的前$d$列给出了点$\mathcal{N}_i$的切面坐标
+  \item hjhj
+  \item hjhj
+  \item dhd
+  \item ghgh
+\end{itemize}
+
+%\CJKfamily{fs}
+%中文部分，可以中英文混合
+%
+%\CJKfamily{hei}
+%中文部分，可以中英文混合
+%
+%\CJKfamily{li}
+%中文部分，可以中英文混合
+%
+%\CJKfamily{kai}
+%中文部分，可以中英文混合
+%
+%\CJKfamily{song}
+%中文部分，可以中英文混合
+
+\section{实验结果}
+
+\section{小结与讨论}
+
+\begin{thebibliography}{MM}
+\addtolength{\itemsep}{-0.5em}
+\begin{small}
+\bibitem{no} Donoho DL, Grimes C, Hessian eigenmaps:Locally linear embedding techniques for high-dimensional data, Proc Natl Acad Sci U S A. 2003 May 13: 100(10): 5591-5596
+\end{small}
+\end{thebibliography}
+\newpage
+\end{CJK*}
+\end{document}
+

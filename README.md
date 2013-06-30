@@ -4,6 +4,27 @@ The homework for Applied Mathematics in Computer Science @ZJU
 
 Main Contents
 --------------------------------------------------------
+<table>
+<tr>
+  <th>Homework Index</th> <th>Main Task</th>
+</tr>
+<tr>
+  <td>1</td> <td>One Dimension Regression</td>
+</tr>
+<tr>
+  <td>2</td> <td>PCA Algorithm</td> 
+</tr>
+<tr>
+  <td>3</td> <td>EM Algorithm</td>
+</tr>
+<tr>
+  <td>4</td> <td>LM Algorithm</td>
+</tr>
+<tr>
+  <td>5</td> <td>Support Vector Machine</td>
+</tr>
+</table>
+
 1. The one dimension regression: use the polynomial function fitting the sin function
 
 

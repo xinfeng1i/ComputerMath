@@ -64,6 +64,7 @@
 \maketitle                                           % 生成标题
 
 
+
 \section{引言}
 Hessian LLE [1] 描述了一种将高维欧式空间流形$M$上的离散数据点，降到低维空间的方法。该方法从一个局部等距的概念框架中导出。在局部等距中流形$M$ 被看做是欧式空间的一个黎曼子流形，对低维欧式空间连通子集也是局部等距的。由于该方法并不要求连通子集是凸集，因而该框架能够处理的情况比ISOMAP 方法更广泛。理论框架主要是求解方程
 $
@@ -73,7 +74,7 @@ $
 
 %\clearpage % 换页，\newpage也可以，推荐\clearpage
 \section{方法概述}
-LLE方法假设数据在流形$M$上，并且流形$M$被看做是周围欧式空间的黎曼子流形，与低维欧式空间的一个凸子集是全局等距的。然而存在不是全局等距的情况——部分等距，因而凸子集的限制是不恰当的。HLLE主要解决部分等距的，非凸集的情况。
+LLE方法假设数据在流形$M$上，并且流形$M$被看做是周围欧式空间的黎曼子流形，与低维欧式空间的一个凸子集是全局等距的。然而存在不是全局等距的情况，部分等距，因而凸子集的限制是不负责任的。HLLE主要解决部分等距的，非凸集的情况。
 \subsection{数学描述}
 假设有一个低维参数空间$\Theta \subset \mathcal{R}^d$ 和一个平滑映射$\psi:\Theta \rightarrow \mathcal{R}^n$,其中$d<n$. 那么称$M=\psi(\Theta)$为流形。向量$\theta$ 可以看做是一些控制参数，流形看做当参数改变时所有可能的测度信息$m=\psi(\theta)$. 关键工作是要从观测数据点$m_i$中恢复出潜在参数${\theta}_i$
 
@@ -86,48 +87,9 @@ ISOMAP给出的两个假设是：
   G(m,m')=|\theta - \theta'|, \forall m \leftrightarrow \theta, m' \leftrightarrow \theta'
 \]
 
-(ISO2)凸集假设：参数空间$\Theta$是$\mathcal{R}^d$空间的凸子集，即如果$\theta$, $\theta'$ 是$\Theta$空间的两个点，那么位于两点之间的线段\{$(1-t)\theta+t\theta':t \in (0,1)$\} 也位于$\Theta$ 内。
+(ISO2)凸集假设：参数空间$\Theta$是$\mathcal{R}^d$空间的凸子集，即如果$\theta$, $\theta'$ 是$\Theta$空间的两个点，那么位于两点之间的线段{$(1-t)\theta+t\theta':t \in (0,1)$} 也位于$\Theta$ 内。
 \end{quotation}
-
-然而并非所有的问题中流形都是全局等距的，也并非所有的参数空间都是凸的，因而文章针对这些问题提出了更松的假设：
-
-\begin{quotation}
-(LocISO1)等距假设：在每个点$m$足够小的范围内邻居，附近点$m'$到$m$的测地距等于其在参数空间内对应点$\theta$和$\theta'$之间的欧式距离。
-
-(LocISO2)连通假设：参数空间$\Theta$是$\mathcal{R}^d$中一个开放的连通子集。
-\end{quotation}
-
-假设$M \subset \mathcal{R}^n$是一个光滑流形，$T_m(M)$在点$m\in M$的切空间。考虑切空间是$\mathcal{R}^n$ 的一个子空间，我们可以讲每一个这样的切空间关联一个正交坐标系统通过使用内积的方式。
-
-立即可以想到将$T_m(M)$看做是$\mathcal{R}^n$一个仿射子空间，与$M$相切于点$m$，原点$0\in T_m(M)$等同于$m \in M$.$m$邻居中的每一个点$m' \in N_m$ 有唯一的最近邻点$v' \in T_m(M)$, 并且映射$m' \rightarrow v'$是光滑的。 在$T_m(M)$中的点的坐标由我们为$T_m(M)$选择的选择的正交坐标唯一确定。通过这种方式，我们可以获得$m \in M$邻居$N_m$的坐标，不妨设为$x_1^(tan,m),\cdots,x_d^(tan,m)$。
-
-现在使用局部坐标来定义函数$f:M \rightarrow \mathcal{R}$的Hessian矩阵.假设$m' \in N_m$有局部坐标$x=x^(tan,m)$，那么规则$g(x)=f(m')$定义了一个函数$g:U \rightarrow \mathcal{R}$,其中$U$是$\mathcal{R}^d$中原点0的邻居。由于映射$m' \rightarrow x$是光滑的，因此函数$g$是二阶可导的。定义切平面坐标中$m$点出$f$的Hessian矩阵作为$g$的Hessian矩阵。
-\[
-（H_f^{tan}(m)）_{i,j}=\frac{\partial}{\partial{x_i}}
-\frac{\partial}{\partial{x_j}}g(x)|_{x=0}
-\]
-
-简而言之，在每一个点$m$处，我们使用切平面坐标和$f$的微分。我们把这种方式的构建简称为切Hessian矩阵.
-
-现在我们考虑定义在$C^2$上的二次形式
-\[
-\mathcal{H}(f) = \int_M {\parallel H_f^{(tan)}\parallel}^2_F dm
-\]
-其中$dm$表示在$M$上的有严格正密度的概率测度.$\mathcal{H}(f)$测度了$f$ 在流形$M$上的平均弯曲程度。
-
-\newtheorem*{theorem}{定理}
-\begin{theorem}
-假设$M=\psi(\Theta)$,其中$\Theta$是$\mathcal{R}^d$的一个开放连通子集，$\psi$是将$\Theta$局部等距嵌入$\mathcal{R}^n$的函数。那么$\mathcal{H}(f)$有一个$(d+1)$维零空间，包含一个常数函数空间和一个$d$维函数空间，由正交等距坐标张成。
-\end{theorem}
-
-\newtheorem*{corollary}{推论}
-\begin{corollary}
-在上述定理的假设之下，原始的等距坐标$\theta$能够被恢复,通过为$\mathcal{H}(f)$的零空间设定一组合适的基。
-\end{corollary}
-
-
-
-\subsection{算法步骤}
+\subsection{算法实现}
 
 \emph{HLLE algorithm}:
 \begin{quotation}

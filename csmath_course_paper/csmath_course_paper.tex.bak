@@ -1,0 +1,188 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage{times}                       % 使用 Times New Roman 字体
+\usepackage{CJK,CJKnumb,CJKulem}         % 中文支持宏包
+\usepackage{color}                       % 支持彩色
+
+\usepackage{comment}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amscd}
+\usepackage{graphicx}
+\usepackage{indentfirst}
+\usepackage{titlesec}
+\usepackage[top=25.4mm, bottom=25.4mm, left=31.7mm, right=32.2mm]{geometry}
+
+%页面设置
+\begin{CJK*}{GBK}{hei}
+%\theoremstyle{definition}
+%\newtheoremstyle{mythm}{1.5ex plus 1ex minus .2ex}{1.5ex plus 1ex minus .2ex}
+%   {\kai}{\parindent}{\song\bfseries}{}{1em}{}
+\newtheoremstyle{mythm}{1ex}{1ex}% 定理环境的上下间距.
+{\CJKfamily{song}}{\parindent}{\CJKfamily{hei} \bf}{}{1em}{}%定理内容为宋体, 缩进, 定理名称为黑粗体
+\theoremstyle{mythm}%设置定理环境
+\newtheorem{thm}{定理~}[section]
+\newtheorem{lem}[thm]{引理~}
+\newtheorem{pro}[thm]{性质~}
+\newtheorem{fact}[thm]{Fact}
+\newtheorem{prop}[thm]{命题~}
+\newtheorem{ques}[thm]{问题~}
+\newtheorem{cor}[thm]{推论~}
+\newtheorem{de}[thm]{定义~}
+\newtheorem{rem}[thm]{注记~}
+\numberwithin{equation}{section}
+\end{CJK*}
+\renewcommand\refname{\CJKfamily{hei} 参考文献}
+%\renewcommand{\abstractname}{摘要}
+%%%%%%%%%%%%%%%%下面几行用于改变证明环境的定义
+\makeatletter
+\renewenvironment{proof}[1][\proofname]{\par
+\pushQED{\qed}%
+\normalfont \topsep6\p@\@plus6\p@ \labelsep1em\relax
+\trivlist
+\item[\hskip\labelsep\indent
+\bfseries #1]\ignorespaces
+}{%
+\popQED\endtrivlist\@endpefalse
+}
+\makeatother
+%%%%%%%%%%%%%%(http://latex.yo2.cn)
+\renewcommand{\proofname}{\CJKfamily{hei} 证明}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+%\titleformat{\section}{\CJKfamily{hei} }{\arabic{section}{1em}{}
+\titleformat{\section}{\large \bf \CJKfamily{hei} }{{\bf \thesection\space}}{0pt}{}
+
+\begin{document}
+%\setlength{\baselineskip}{1ex}% 设置行距
+\setlength{\abovedisplayskip}{1ex} % 设置公式上边间距
+\setlength{\belowdisplayskip}{1ex} % 设置公式下边间距
+\begin{CJK*}{GBK}{song}
+
+\author{李新锋 (11224014)}                                 % 作者
+\title{计算机应用数学课程论文}              % 题目
+\maketitle                                           % 生成标题
+
+
+\section{引言}
+Hessian LLE [1] 描述了一种将高维欧式空间流形$M$上的离散数据点，降到低维空间的方法。该方法从一个局部等距的概念框架中导出。在局部等距中流形$M$ 被看做是欧式空间的一个黎曼子流形，对低维欧式空间连通子集也是局部等距的。由于该方法并不要求连通子集是凸集，因而该框架能够处理的情况比ISOMAP 方法更广泛。理论框架主要是求解方程
+$
+  \mathcal{H}(f) = \int_M ||H_f(m)||^2_F
+$
+其中定义\emph{f}:$M \rightarrow \mathcal{R}$, $H_f$表示$f$的Hessian矩阵, $\mathcal{H}{f}$对流形$M$上的Hessian矩阵的Frobenius 范数求均值。为了定义Hessian，我们使用在流形$M$切平面上的正交坐标系。观察到，如果流形$M$确实是局部等距于低维欧式空间的一个连通子集，那么$\mathcal{H}{f}$有一个$(d+1)$维零空间，该零空间由一个常量函数和一个由原始等距坐标张成的$d$ 维函数空间。因此等距坐标可以被恢复到线性等距。该方法可以看做是是LLE方法的修正，其理论框架可以看做是Laplacian eigenmaps框架的修正， 其中将原来的Laplacian替换为基于Hessian的二次形式。
+
+%\clearpage % 换页，\newpage也可以，推荐\clearpage
+\section{方法概述}
+LLE方法假设数据在流形$M$上，并且流形$M$被看做是周围欧式空间的黎曼子流形，与低维欧式空间的一个凸子集是全局等距的。然而存在不是全局等距的情况——部分等距，因而凸子集的限制是不恰当的。HLLE主要解决部分等距的，非凸集的情况。
+\subsection{数学描述}
+假设有一个低维参数空间$\Theta \subset \mathcal{R}^d$ 和一个平滑映射$\psi:\Theta \rightarrow \mathcal{R}^n$,其中$d<n$. 那么称$M=\psi(\Theta)$为流形。向量$\theta$ 可以看做是一些控制参数，流形看做当参数改变时所有可能的测度信息$m=\psi(\theta)$. 关键工作是要从观测数据点$m_i$中恢复出潜在参数${\theta}_i$
+
+给定流形上的数据点$m_i$ 的集合，恢复出唯一的映射函数$\psi$和参数点$\theta_i$，是不可能的。因为如果找到一个$\psi$是问题的解，那么总是可以找到另一个映射$\phi: \mathcal{R}^d \rightarrow \mathcal{R}^d$，那么将两个映射进行组合$\psi \circ \phi$就可以得到另外一个解。出于这种考虑我们需要做一些额外的假设从而使得取得的解唯一。
+
+ISOMAP给出的两个假设是：
+\begin{quotation}
+(ISO1)等距假设：映射函数$\psi$保留映射前后的两点之间的测地距不变，即
+\[
+  G(m,m')=|\theta - \theta'|, \forall m \leftrightarrow \theta, m' \leftrightarrow \theta'
+\]
+
+(ISO2)凸集假设：参数空间$\Theta$是$\mathcal{R}^d$空间的凸子集，即如果$\theta$, $\theta'$ 是$\Theta$空间的两个点，那么位于两点之间的线段\{$(1-t)\theta+t\theta':t \in (0,1)$\} 也位于$\Theta$ 内。
+\end{quotation}
+
+然而并非所有的问题中流形都是全局等距的，也并非所有的参数空间都是凸的，因而文章针对这些问题提出了更松的假设：
+
+\begin{quotation}
+(LocISO1)等距假设：在每个点$m$足够小的范围内邻居，附近点$m'$到$m$的测地距等于其在参数空间内对应点$\theta$和$\theta'$之间的欧式距离。
+
+(LocISO2)连通假设：参数空间$\Theta$是$\mathcal{R}^d$中一个开放的连通子集。
+\end{quotation}
+
+假设$M \subset \mathcal{R}^n$是一个光滑流形，$T_m(M)$在点$m\in M$的切空间。考虑切空间是$\mathcal{R}^n$ 的一个子空间，我们可以讲每一个这样的切空间关联一个正交坐标系统通过使用内积的方式。
+
+立即可以想到将$T_m(M)$看做是$\mathcal{R}^n$一个仿射子空间，与$M$相切于点$m$，原点$0\in T_m(M)$等同于$m \in M$.$m$邻居中的每一个点$m' \in N_m$ 有唯一的最近邻点$v' \in T_m(M)$, 并且映射$m' \rightarrow v'$是光滑的。 在$T_m(M)$ 中的点的坐标由我们为$T_m(M)$选择的选择的正交坐标唯一确定。通过这种方式，我们可以获得$m \in M$邻居$N_m$的坐标，不妨设为$x_1^(tan,m),\cdots,x_d^(tan,m)$。
+
+现在使用局部坐标来定义函数$f:M \rightarrow \mathcal{R}$的Hessian矩阵.假设$m' \in N_m$有局部坐标$x=x^(tan,m)$，那么规则$g(x)=f(m')$定义了一个函数$g:U \rightarrow \mathcal{R}$,其中$U$是$\mathcal{R}^d$中原点0的邻居。由于映射$m' \rightarrow x$是光滑的，因此函数$g$是二阶可导的。定义切平面坐标中$m$点出$f$ 的Hessian矩阵作为$g$的Hessian矩阵。
+\[
+（H_f^{tan}(m)）_{i,j}=\frac{\partial}{\partial{x_i}}
+\frac{\partial}{\partial{x_j}}g(x)|_{x=0}
+\]
+
+简而言之，在每一个点$m$处，我们使用切平面坐标和$f$的微分。我们把这种方式的构建简称为切Hessian矩阵.
+
+现在我们考虑定义在$C^2$上的二次形式
+\[
+\mathcal{H}(f) = \int_M {\parallel H_f^{(tan)}\parallel}^2_F dm
+\]
+其中$dm$表示在$M$上的有严格正密度的概率测度.$\mathcal{H}(f)$测度了$f$ 在流形$M$上的平均弯曲程度。
+
+\newtheorem*{theorem}{定理}
+\begin{theorem}
+假设$M=\psi(\Theta)$,其中$\Theta$是$\mathcal{R}^d$的一个开放连通子集，$\psi$ 是将$\Theta$局部等距嵌入$\mathcal{R}^n$的函数。那么$\mathcal{H}(f)$有一个$(d+1)$维零空间，包含一个常数函数空间和一个$d$维函数空间，由正交等距坐标张成。
+\end{theorem}
+
+\newtheorem*{corollary}{推论}
+\begin{corollary}
+在上述定理的假设之下，原始的等距坐标$\theta$能够被恢复,通过为$\mathcal{H}(f)$的零空间设定一组合适的基。
+\end{corollary}
+
+
+
+\subsection{算法步骤}
+考虑流形面$M$上的样本数据点$m_i$，我们希望恢复潜在的参数$\psi$和潜在的参数设置$\theta_i$。上面的定理和推论告诉我们通过下列的算法可以解决这个问题。
+
+\emph{HLLE algorithm}:
+\begin{quotation}
+输入: $\mathcal{R}^n$中$N$个点集合($m_i$:$i=1,...N$)。
+
+参数：$d$,参数空间的维数；$k$，邻居点的个数。
+
+约束：$min(k,n)>d$
+
+输出：$\mathcal{R}^d$中的对应的$N$点集合$(w_i:i=1,\cdots,N)$
+
+\end{quotation}
+
+\emph{Procedure}:
+\begin{itemize}
+  \item 确定邻居：对于每一个数据点 $m_i$, $i=1,...,n$,确定其欧式空间中最近$k$ 近邻。记 $\mathcal{N}_i$ 表示邻居节点的集合。对于每一个 $\mathcal{N}_i,i=1,...,N$,组成一个$k*N$的矩阵$M^i$,每一行表示一个去中心化的邻居节点集合$m_j-\overline{m}_i$, $j\in \mathcal{N}_i$,其中$\overline{m}_i=Ave\{m_j:j \in \mathcal{N}_i\}$
+
+  \item 获得切面坐标：对$M_i$做SVD分解，生成矩阵$U$,$D$,$V$; $U$是
+  $k*min(k,n)$. $U$的前$d$列给出了点$\mathcal{N}_i$的切面坐标
+
+  \item 计算Hessian估计：计算Hessian的最小平方估计。本质上，这是一个矩阵$H^i$，其特性是如果$f$是一个光滑函数$f:M \rightarrow \mathcal{R}$，$f_j=(f(m_i))$，通过从$f$中提出对应的邻居$N_i$中对应的点得到向量$v^i$，从而得到矩阵向量乘积$H^iv^i$给出$d(d+1)/2$个向量，每一项近似于Hessian矩阵的每一项$(\partial{f}/\partial{U_i}\partial{U_j})$。
+
+  \item 计算二次型：构建对称矩阵$\mathcal{H}_{ij}$满足
+  \begin{equation*}
+    \mathcal{H}_{i,j} = \sum_l \sum_r ((H^l)_{r,i} (H^l)_{r,j})
+  \end{equation*}
+  其中$H^l$表示$d(d+1) \times k$矩阵，其中行$r$对应于Hessian矩阵中的项，列$i$对应邻居集合中的点。
+
+  \item 寻找近似零空间：对$\mathcal{H}$进行特征分析，从其$d+1$个最小特征值中提出$d+1$维子空间。其中有一个特征值为0对应于常数函数的子空间，其余的$d$个特征值对应于有特征向量张成的$d$为空间$\hat{V}_d$。
+
+  \item 寻找零空间的基：为$\hat{V}_d$选择一组基，其为特定的邻居几点$N_0$提供了一组标准正交基。给定的基有基向量$w^1,\cdots,w^d$
+\end{itemize}
+
+\section{实验结果}
+\subsection{原论文结果}
+
+实验中将原来的矩形流形挖去了一个矩形条，流形在地位空间的展开不再是凸域，但是仍然是局部等距与欧式空间，缺失的矩形条状趋于使得结果函数不再对症，并且对于原始的参数不再线性。在这种情况下，非凸域使得ISOMAP引起缺失区域的膨胀，并且扭曲了剩余的区域。而HLLE几乎能够完美的恢复到二维空间。
+
+\includegraphics[width=13cm]{hlle.jpg}
+
+\subsection{自己的结果}
+
+\includegraphics[width=6.5]{helix_dataset.eps,helix_isomap.eps}
+
+
+\section{小结与讨论}
+
+\begin{thebibliography}{MM}
+\addtolength{\itemsep}{-0.5em}
+\begin{small}
+\bibitem{no} Donoho DL, Grimes C, Hessian eigenmaps:Locally linear embedding techniques for high-dimensional data, Proc Natl Acad Sci U S A. 2003 May 13: 100(10): 5591-5596
+\end{small}
+\end{thebibliography}
+\newpage
+\end{CJK*}
+\end{document}
+

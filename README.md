@@ -42,3 +42,7 @@ Main Contents
 
 
 5. SVM: Support Vector Machine
+ + svm.py: the SVM algorithm
+ + linear_separable.png: used SVM to classify the linear separable data
+ + linear_overlap_separable.png: classify the linear separable data with overlap data
+ + non_linear_separable.png: classify the non-linear separable data

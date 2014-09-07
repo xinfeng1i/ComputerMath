@@ -49,9 +49,8 @@ Main Contents
  + non_linear_separable.png: classify the non-linear separable data
 
 
+Contacts
+-----------------------------------------------------------------
+Email: silfer.lee@gmail.com
 
- Contacts
- -----------------------------------------------------------------
- Email: silfer.lee@gmail.com
-
- Date: 2013/03/19
+Date: 2013/03/19
